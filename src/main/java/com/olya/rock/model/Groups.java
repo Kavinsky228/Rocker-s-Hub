@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+
 public class Groups {
   private String groupName;
   private String genreMusic;
-  private Integer daysExistence;
+  private Integer listeners;
 
   public String getGenre() {
     return genreMusic;
@@ -20,5 +21,9 @@ public class Groups {
 
   public String getName() {
     return groupName;
+  }
+
+  public int getListeners() {
+    return listeners != null ? listeners : 0;
   }
 }

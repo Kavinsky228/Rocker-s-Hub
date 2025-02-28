@@ -1,46 +1,46 @@
 package com.olya.rock.controller;
 
-import com.olya.rock.model.Groups;
-import java.util.Arrays;
-import java.util.List;
+import com.olya.rock.dta.GroupsDTA;
+import com.olya.rock.exceptions.GroupNotFoundException;
+import com.olya.rock.service.GroupsService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/groups")
 public class RockController {
 
-  private static final String HARD_ROCK = "Hard rock";
-  private static final String THRASH_METAL = "Thrash metal";
+  private final GroupsService groupsService;
 
-  private final List<Groups> groups = Arrays.asList(
-      new Groups("Slayer", THRASH_METAL, 972614),
-      new Groups("AC/DC", HARD_ROCK, 42000000),
-      new Groups("Scorpions", HARD_ROCK, 100000000),
-      new Groups("Metallica", THRASH_METAL, 25540),
-      new Groups("Lnkin Park", "Nu metal", 47085648),
-      new Groups("Queen", HARD_ROCK, 15912000),
-      new Groups("System of a down", "Progressive metal", 62126));
+  public RockController(GroupsService groupsService) {
+    this.groupsService = groupsService;
+  }
 
-  // GET-запрос для получения всех групп
+
   @GetMapping
-  public List<Groups> findAllGroups() {
-    return groups;
+  public List<GroupsDTA> findAllGroups() {
+    return groupsService.findAllGroups();
   }
 
-  // GET-запрос с Query Parameters (например, /api/v1/groups/filter?genre=Rock)
+
   @GetMapping("/filter")
-  public List<Groups> findGroupsByGenre(@RequestParam String genre) {
-    return groups.stream()
-        .filter(group -> group.getGenre().equalsIgnoreCase(genre))
-        .toList();
+  public List<GroupsDTA> findGroupsByGenre(@RequestParam String genre) {
+    return groupsService.findGroupsByGenre(genre);
   }
 
-  // GET-запрос с Path Parameters (например, /api/v1/groups/AC:DC)
+
   @GetMapping("/{name}")
-  public Groups findGroupByName(@PathVariable String name) {
-    return groups.stream()
-        .filter(group -> group.getName().equalsIgnoreCase(name))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("Группа не найдена"));
+  public GroupsDTA findGroupByName(@PathVariable String name) {
+    return groupsService.findGroupByName(name);
   }
+
+  @ExceptionHandler(GroupNotFoundException.class)
+  public ResponseEntity<String> handleGroupNotFoundException(GroupNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
+
 }
