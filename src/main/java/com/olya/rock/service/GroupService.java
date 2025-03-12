@@ -1,18 +1,17 @@
 package com.olya.rock.service;
 
-import com.olya.rock.dao.GroupsDAO;
+import com.olya.rock.dao.GroupDAO;
 import com.olya.rock.exceptions.GroupNotFoundException;
 import com.olya.rock.model.Group;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-
 @Service
-public class GroupsService {
-  private final GroupsDAO groupsDAO;
+public class GroupService {
+  private final GroupDAO groupsDAO;
 
-  public GroupsService(GroupsDAO groupsDAO) {
+  public GroupService(GroupDAO groupsDAO) {
     this.groupsDAO = groupsDAO;
   }
 
@@ -29,19 +28,16 @@ public class GroupsService {
       }
     }
     if (filteredGroups.isEmpty()) {
-      throw new GroupNotFoundException("Группы не найдены для жанра: " + genre);
+      throw new GroupNotFoundException("Groups not found for genre: " + genre);
     }
     return filteredGroups;
   }
 
-
-  public Group getGroupByName(String name) {
-    List<Group> allGroups = groupsDAO.getAllGroups();
-    for (Group group : allGroups) {
-      if (group.getName().equalsIgnoreCase(name)) {
-        return group;
-      }
+  public Group getGroupById(int id) {
+    try {
+      return groupsDAO.getGroupById(id);
+    } catch (IndexOutOfBoundsException e) {
+      throw new GroupNotFoundException("Group with ID " + id + " not found");
     }
-    throw new GroupNotFoundException("Группа не найдена: " + name);
   }
 }
